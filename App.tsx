@@ -17,6 +17,8 @@ enum iconNames {
   HomeOutline = "home-outline",
   Person = "person",
   PersonOutline = "person-outline",
+  AddCircle = "add-circle",
+  AddCircleOutline = "add-circle-outline",
 }
 
 const App = () => {
@@ -34,8 +36,12 @@ const App = () => {
               // } else if (route.name === "Profile") {
               //   iconName = focused ? "person" : "person-outline";
               // }
-              if (route.name === "Home") {
+              if (route.name === "Finance Manager") {
                 iconName = focused ? iconNames.Home : iconNames.HomeOutline;
+              } else if (route.name === "New Entry") {
+                iconName = focused
+                  ? iconNames.AddCircle
+                  : iconNames.AddCircleOutline;
               } else if (route.name === "Profile") {
                 iconName = focused ? iconNames.Person : iconNames.PersonOutline;
               }
@@ -47,7 +53,8 @@ const App = () => {
             tabBarInactiveTintColor: "gray",
           })}
         >
-          <Tab.Screen name="Home" component={RootNavigator} />
+          <Tab.Screen name="Finance Manager" component={RootNavigator} />
+          <Tab.Screen name="New Entry" component={ProfileScreen} />
           <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
       </NavigationContainer>

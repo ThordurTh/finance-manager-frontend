@@ -21,7 +21,7 @@ const RootNavigator = () => {
       <Stack.Screen
         name="EntryList"
         component={EntryListScreen}
-        options={{ title: "Entries" }}
+        options={{ title: "All Entries" }}
       />
       <Stack.Screen
         name="EntryEdit"
