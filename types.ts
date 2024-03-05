@@ -2,8 +2,8 @@
 export interface Entry {
   id: number;
   image: string;
-  companyName: string;
+  name: string;
   amount: number;
   currency: string;
-  date: Date;
+  date: string;
 }

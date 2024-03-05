@@ -1,5 +1,5 @@
-import React from "react";
-import { FlatList, StyleSheet, Text, View, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import { FlatList, StyleSheet, Text, View, Image, Button } from "react-native";
 import { RootStackParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Entry } from "../types";
@@ -9,16 +9,17 @@ import { RootState } from "../store/store";
 type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
 
 const EntryListScreen: React.FC = () => {
-  const entries = useSelector((state: RootState) => state.entries);
+  // const entries = useSelector((state: RootState) => state.entries);
+  const [entries, setEntries] = useState<Entry[]>([]);
 
   // Format date
-  const formatDate = (date: Date): string => {
+  const formatDate = (date: string): string => {
     const options: Intl.DateTimeFormatOptions = {
       day: "numeric",
       month: "long",
       year: "numeric",
     };
-    return new Intl.DateTimeFormat("en-dk", options).format(date);
+    return new Intl.DateTimeFormat("en-dk", options).format(new Date(date));
   };
 
   // Each entry
@@ -29,7 +30,7 @@ const EntryListScreen: React.FC = () => {
           source={getImageSource(item.image)} // Dynamically load image source
           style={styles.image}
         />
-        <Text style={styles.companyName}>{item.companyName}</Text>
+        <Text style={styles.companyName}>{item.name}</Text>
       </View>
       <View style={styles.rightContainer}>
         <Text style={styles.amount}>
@@ -38,8 +39,38 @@ const EntryListScreen: React.FC = () => {
         </Text>
         <Text style={styles.date}>{formatDate(item.date)}</Text>
       </View>
+      <View>
+        <Button title="Delete" onPress={() => deleteEntry(item.id)} />
+      </View>
     </View>
   );
+
+  const deleteEntry = (id: number) => {
+    // console.log(id + " deleted");
+    fetch(`https://5703-87-61-177-51.ngrok-free.app/entry/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Entry deleted successfully:", data);
+        // Handle any success response from the server
+        setEntries((prevEntries) =>
+          prevEntries.filter((entry) => entry.id !== id)
+        );
+      })
+      .catch((error) => {
+        console.error("Error deleting entry:", error);
+        // Handle any error that occurs during the fetch request
+      });
+  };
 
   // Function to dynamically load image source
   const getImageSource = (imageName: string) => {
@@ -69,6 +100,17 @@ const EntryListScreen: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    fetch("https://5703-87-61-177-51.ngrok-free.app/entry")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => setEntries(data))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
   return (
     <View style={styles.wrapper}>
       <FlatList

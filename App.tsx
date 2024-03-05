@@ -54,7 +54,7 @@ const App = () => {
           })}
         >
           <Tab.Screen name="Finance Manager" component={RootNavigator} />
-          <Tab.Screen name="New Entry" component={ProfileScreen} />
+          {/* <Tab.Screen name="New Entry" component={ProfileScreen} /> */}
           <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
       </NavigationContainer>
