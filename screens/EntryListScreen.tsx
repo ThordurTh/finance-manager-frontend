@@ -1,16 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { FlatList, StyleSheet, Text, View, Image, Button } from "react-native";
 import { RootStackParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Entry } from "../types";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { FlatList, StyleSheet, Text, View, Image, Button } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
+import { fetchEntries, selectEntries } from "../store/entriesSlice";
+import { Entry } from "../types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
 
 const EntryListScreen: React.FC = () => {
+  const dispatch = useDispatch<any>();
+  const entries = useSelector(selectEntries);
   // const entries = useSelector((state: RootState) => state.entries);
-  const [entries, setEntries] = useState<Entry[]>([]);
+  // const [entries, setEntries] = useState<Entry[]>([]);
+
+  useEffect(() => {
+    dispatch(fetchEntries());
+  }, [dispatch]);
 
   // Format date
   const formatDate = (date: string): string => {
@@ -62,9 +69,9 @@ const EntryListScreen: React.FC = () => {
       .then((data) => {
         console.log("Entry deleted successfully:", data);
         // Handle any success response from the server
-        setEntries((prevEntries) =>
-          prevEntries.filter((entry) => entry.id !== id)
-        );
+        // setEntries((prevEntries) =>
+        //   prevEntries.filter((entry) => entry.id !== id)
+        // );
       })
       .catch((error) => {
         console.error("Error deleting entry:", error);
@@ -100,17 +107,18 @@ const EntryListScreen: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetch("https://5703-87-61-177-51.ngrok-free.app/entry")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => setEntries(data))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+  // useEffect(() => {
+  //   fetch("https://5703-87-61-177-51.ngrok-free.app/entry")
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Network response was not ok");
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => setEntries(data))
+  //     .catch((error) => console.error("Error fetching data:", error));
+  // }, []);
+
   return (
     <View style={styles.wrapper}>
       <FlatList
