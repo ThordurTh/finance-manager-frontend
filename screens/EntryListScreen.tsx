@@ -4,20 +4,24 @@ import React, { useEffect } from "react";
 import { FlatList, StyleSheet, Text, View, Image, Button } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { fetchEntries, selectEntries } from "../store/entriesSlice";
+import { fetchEntries, deleteEntry } from "../store/entriesSlice";
 import { Entry } from "../types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
 
 const EntryListScreen: React.FC = () => {
-  const dispatch = useDispatch<any>();
-  const entries = useSelector(selectEntries);
-  // const entries = useSelector((state: RootState) => state.entries);
-  // const [entries, setEntries] = useState<Entry[]>([]);
+  const dispatch = useDispatch();
+  const { entries, loading, error } = useSelector(
+    (state: RootState) => state.entries
+  );
 
   useEffect(() => {
-    dispatch(fetchEntries());
+    dispatch(fetchEntries() as any);
   }, [dispatch]);
+
+  const handleDeleteEntry = (entryId: number) => {
+    dispatch(deleteEntry(entryId) as any);
+  };
 
   // Format date
   const formatDate = (date: string): string => {
@@ -34,7 +38,7 @@ const EntryListScreen: React.FC = () => {
     <View style={styles.entryContainer}>
       <View style={styles.leftContainer}>
         <Image
-          source={getImageSource(item.image)} // Dynamically load image source
+          source={getImageSource(item.category.name)}
           style={styles.image}
         />
         <Text style={styles.companyName}>{item.name}</Text>
@@ -47,37 +51,10 @@ const EntryListScreen: React.FC = () => {
         <Text style={styles.date}>{formatDate(item.date)}</Text>
       </View>
       <View>
-        <Button title="Delete" onPress={() => deleteEntry(item.id)} />
+        <Button title="Delete" onPress={() => handleDeleteEntry(item.id)} />
       </View>
     </View>
   );
-
-  const deleteEntry = (id: number) => {
-    // console.log(id + " deleted");
-    fetch(`https://5703-87-61-177-51.ngrok-free.app/entry/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Entry deleted successfully:", data);
-        // Handle any success response from the server
-        // setEntries((prevEntries) =>
-        //   prevEntries.filter((entry) => entry.id !== id)
-        // );
-      })
-      .catch((error) => {
-        console.error("Error deleting entry:", error);
-        // Handle any error that occurs during the fetch request
-      });
-  };
 
   // Function to dynamically load image source
   const getImageSource = (imageName: string) => {
@@ -106,18 +83,6 @@ const EntryListScreen: React.FC = () => {
         return require("../assets/category-icons/other.png");
     }
   };
-
-  // useEffect(() => {
-  //   fetch("https://5703-87-61-177-51.ngrok-free.app/entry")
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         throw new Error("Network response was not ok");
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((data) => setEntries(data))
-  //     .catch((error) => console.error("Error fetching data:", error));
-  // }, []);
 
   return (
     <View style={styles.wrapper}>

@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { Counter } from "./components/Counter";
+import NewEntryScreen from "./screens/NewEntryScreen";
 const Tab = createBottomTabNavigator();
 
 // https://icons.expo.fyi/Index
@@ -54,7 +55,7 @@ const App = () => {
           })}
         >
           <Tab.Screen name="Finance Manager" component={RootNavigator} />
-          {/* <Tab.Screen name="New Entry" component={ProfileScreen} /> */}
+          <Tab.Screen name="New Entry" component={NewEntryScreen} />
           <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
       </NavigationContainer>

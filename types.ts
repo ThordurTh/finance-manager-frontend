@@ -1,9 +1,12 @@
 // types.ts
 export interface Entry {
   id: number;
-  image: string;
   name: string;
+  comment: string;
   amount: number;
   currency: string;
   date: string;
+  category: {
+    name: string;
+  };
 }
