@@ -8,12 +8,14 @@ interface EntriesState {
   entries: Entry[];
   loading: boolean;
   error: string | null;
+  categoryCounts: number[];
 }
 
 const initialState: EntriesState = {
   entries: [],
   loading: false,
   error: null,
+  categoryCounts: Array(11).fill(0),
 };
 
 export const fetchEntries = createAsyncThunk("data/fetchData", async () => {
@@ -45,8 +47,13 @@ export const deleteEntry = createAsyncThunk(
 const entriesSlice = createSlice({
   name: "entries",
   initialState,
-  reducers: {},
+  reducers: {
+    updateCategoryCounts: (state, action) => {
+      state.categoryCounts = action.payload;
+    },
+  },
   extraReducers: (builder) => {
+    // GET
     builder.addCase(fetchEntries.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -62,6 +69,7 @@ const entriesSlice = createSlice({
       state.loading = false;
       state.error = action.error.message || "An error occurred.";
     });
+    // DELETE
     builder.addCase(deleteEntry.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -80,6 +88,8 @@ const entriesSlice = createSlice({
     });
   },
 });
+
+export const { updateCategoryCounts } = entriesSlice.actions;
 
 export default entriesSlice.reducer;
 

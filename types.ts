@@ -7,6 +7,7 @@ export interface Entry {
   currency: string;
   date: string;
   category: {
+    id: number;
     name: string;
   };
 }
