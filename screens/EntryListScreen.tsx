@@ -6,18 +6,24 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { fetchEntries, deleteEntry } from "../store/entriesSlice";
 import { Entry } from "../types";
+import { useIsFocused } from "@react-navigation/native";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
 
 const EntryListScreen: React.FC = () => {
   const dispatch = useDispatch();
+
   const { entries, loading, error } = useSelector(
     (state: RootState) => state.entries
   );
 
+  const isFocused = useIsFocused(); // Hook provided by react-navigation
+
   useEffect(() => {
-    dispatch(fetchEntries() as any);
-  }, [dispatch]);
+    if (isFocused) {
+      dispatch(fetchEntries() as any);
+    }
+  }, [dispatch, isFocused]);
 
   const handleDeleteEntry = (entryId: number) => {
     dispatch(deleteEntry(entryId) as any);
@@ -86,11 +92,18 @@ const EntryListScreen: React.FC = () => {
 
   return (
     <View style={styles.wrapper}>
-      <FlatList
-        data={entries}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      {/* Display your data here */}
+      {loading ? (
+        <Text>Loading...</Text>
+      ) : error ? (
+        <Text>Error: {error}</Text>
+      ) : (
+        <FlatList
+          data={entries}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
     </View>
   );
 };

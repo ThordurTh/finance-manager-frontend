@@ -53,7 +53,10 @@ const entriesSlice = createSlice({
     });
     builder.addCase(fetchEntries.fulfilled, (state, action) => {
       state.loading = false;
-      state.entries = action.payload;
+      state.entries = action.payload.sort(
+        (a: Entry, b: Entry) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
     });
     builder.addCase(fetchEntries.rejected, (state, action) => {
       state.loading = false;
