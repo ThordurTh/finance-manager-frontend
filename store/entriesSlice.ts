@@ -23,7 +23,7 @@ export const fetchEntries = createAsyncThunk("data/fetchData", async () => {
     const response = await axios.get(
       "https://honestly-grateful-honeybee.ngrok-free.app/entry"
     );
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     throw error;

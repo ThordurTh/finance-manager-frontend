@@ -1,6 +1,6 @@
 import { RootStackParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -9,10 +9,11 @@ import {
   Image,
   Button,
   TouchableOpacity,
+  RefreshControl,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { fetchEntries, deleteEntry } from "../store/entriesSlice";
+import { fetchEntries } from "../store/entriesSlice";
 import { Entry } from "../types";
 // import { useIsFocused } from "@react-navigation/native";
 
@@ -20,6 +21,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
 
 const EntryListScreen = (props: Props) => {
   const dispatch = useDispatch();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { entries, loading, error } = useSelector(
     (state: RootState) => state.entries
@@ -36,8 +38,12 @@ const EntryListScreen = (props: Props) => {
     //  isFocused
   ]);
 
-  const handleDeleteEntry = (entryId: number) => {
-    dispatch(deleteEntry(entryId) as any);
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(async () => {
+      await dispatch(fetchEntries() as any);
+      setIsRefreshing(false);
+    }, 700); // 2000 milliseconds = 2 seconds
   };
 
   // Format date
@@ -64,15 +70,16 @@ const EntryListScreen = (props: Props) => {
         <Text style={styles.companyName}>{item.name}</Text>
       </View>
       <View style={styles.rightContainer}>
-        <Text style={styles.amount}>
+        <Text
+          style={[
+            styles.amount,
+            item.incomeExpense === "expense" && styles.expense,
+          ]}
+        >
           {item.incomeExpense === "expense" && "-"}
-          {item.amount}
-          kr
+          {item.amount} kr
         </Text>
         <Text style={styles.date}>{formatDate(item.date)}</Text>
-      </View>
-      <View>
-        <Button title="Delete" onPress={() => handleDeleteEntry(item.id)} />
       </View>
     </TouchableOpacity>
   );
@@ -108,17 +115,20 @@ const EntryListScreen = (props: Props) => {
   return (
     <View style={styles.wrapper}>
       {/* Display your data here */}
-      {loading ? (
+      {/* {loading ? (
         <Text>Loading...</Text>
       ) : error ? (
         <Text>Error: {error}</Text>
-      ) : (
-        <FlatList
-          data={entries}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      )}
+      ) : ( */}
+      <FlatList
+        data={entries}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+      />
+      {/* )} */}
     </View>
   );
 };
@@ -157,6 +167,10 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 16,
     fontWeight: "bold",
+    color: "#2DAD00",
+  },
+  expense: {
+    color: "#DF3C3C",
   },
   date: {
     fontSize: 12,

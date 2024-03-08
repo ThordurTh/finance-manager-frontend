@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Button, Image, Modal } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  Image,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
 import { RootStackParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
@@ -27,19 +35,21 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       visible={visible}
       onRequestClose={onCancel}
     >
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <View
-          style={{
-            backgroundColor: "white",
-            padding: 20,
-            borderRadius: 10,
-            alignItems: "center",
-          }}
-        >
-          <Text>Are you sure?</Text>
-          <View style={{ flexDirection: "row", marginTop: 10 }}>
-            <Button title="Yes" onPress={onConfirm} />
-            <Button title="No" onPress={onCancel} />
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalHeading}>Are you sure?</Text>
+          <Text style={styles.modalText}>This entry will be deleted.</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity onPress={onConfirm}>
+              <View style={styles.modalYes}>
+                <Text style={styles.modalTextYes}>Delete Entry</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onCancel}>
+              <View style={styles.modalNo}>
+                <Text style={styles.modalTextNo}>Cancel</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -87,6 +97,7 @@ const EntryEditScreen = ({ navigation, route }: EntryEditScreenProps) => {
   const handleConfirmDelete = () => {
     dispatch(deleteEntry(entry.id) as any);
     setIsModalVisible(false);
+    navigation.goBack();
   };
 
   const handleCancelDelete = () => {
@@ -143,7 +154,12 @@ const EntryEditScreen = ({ navigation, route }: EntryEditScreenProps) => {
           <Text style={styles.text}>{entry.comment}</Text>
         </View>
       </View>
-      <Button title="Delete Entry?" onPress={() => handleDeleteEntry()} />
+      <View style={styles.delete}>
+        <TouchableOpacity onPress={() => handleDeleteEntry()}>
+          <Image source={require("../assets/category-icons/delete.png")} />
+        </TouchableOpacity>
+      </View>
+
       <DeleteModal
         visible={isModalVisible}
         onConfirm={handleConfirmDelete}
@@ -205,6 +221,63 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 18,
     color: "white",
+  },
+  delete: {
+    alignItems: "center",
+    marginTop: 30,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: 100,
+    alignItems: "center",
+  },
+  modalContent: {
+    // paddingHorizontal: 60,
+    paddingVertical: 20,
+    borderRadius: 40,
+    alignItems: "center",
+    width: "80%",
+    height: 240,
+    backgroundColor: "#39413F",
+  },
+  modalHeading: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "600",
+  },
+  modalText: {
+    fontSize: 18,
+    color: "white",
+  },
+  buttonContainer: {
+    flexDirection: "column",
+    // justifyContent: "flex-end",
+    marginTop: "auto",
+    gap: 10,
+    width: "90%",
+    justifyContent: "center",
+  },
+  modalNo: {
+    backgroundColor: "#D9D9D9",
+    borderRadius: 50,
+    paddingVertical: 15,
+    alignItems: "center",
+  },
+  modalTextNo: {
+    fontSize: 16,
+    // color: "white",
+  },
+  modalYes: {
+    backgroundColor: "#dd4240",
+    borderRadius: 50,
+    paddingVertical: 15,
+    alignItems: "center",
+  },
+  modalTextYes: {
+    fontSize: 16,
+    color: "white",
+    fontWeight: "600",
   },
 });
 export default EntryEditScreen;
