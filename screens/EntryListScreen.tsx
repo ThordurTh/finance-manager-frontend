@@ -1,29 +1,40 @@
 import { RootStackParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect } from "react";
-import { FlatList, StyleSheet, Text, View, Image, Button } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Button,
+  TouchableOpacity,
+} from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { fetchEntries, deleteEntry } from "../store/entriesSlice";
 import { Entry } from "../types";
-import { useIsFocused } from "@react-navigation/native";
+// import { useIsFocused } from "@react-navigation/native";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
 
-const EntryListScreen: React.FC = () => {
+const EntryListScreen = (props: Props) => {
   const dispatch = useDispatch();
 
   const { entries, loading, error } = useSelector(
     (state: RootState) => state.entries
   );
 
-  const isFocused = useIsFocused(); // Hook provided by react-navigation
+  // const isFocused = useIsFocused(); // Hook provided by react-navigation
 
   useEffect(() => {
-    if (isFocused) {
-      dispatch(fetchEntries() as any);
-    }
-  }, [dispatch, isFocused]);
+    // if (isFocused) {
+    dispatch(fetchEntries() as any);
+    // }
+  }, [
+    dispatch,
+    //  isFocused
+  ]);
 
   const handleDeleteEntry = (entryId: number) => {
     dispatch(deleteEntry(entryId) as any);
@@ -41,7 +52,10 @@ const EntryListScreen: React.FC = () => {
 
   // Each entry
   const renderItem = ({ item }: { item: Entry }) => (
-    <View style={styles.entryContainer}>
+    <TouchableOpacity
+      style={styles.entryContainer}
+      onPress={() => props.navigation.navigate("EntryEdit", { entry: item })}
+    >
       <View style={styles.leftContainer}>
         <Image
           source={getImageSource(item.category.name)}
@@ -51,6 +65,7 @@ const EntryListScreen: React.FC = () => {
       </View>
       <View style={styles.rightContainer}>
         <Text style={styles.amount}>
+          {item.incomeExpense === "expense" && "-"}
           {item.amount}
           kr
         </Text>
@@ -59,7 +74,7 @@ const EntryListScreen: React.FC = () => {
       <View>
         <Button title="Delete" onPress={() => handleDeleteEntry(item.id)} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   // Function to dynamically load image source

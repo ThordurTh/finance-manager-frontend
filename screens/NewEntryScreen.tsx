@@ -45,6 +45,7 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
       currency: "DKK",
       name,
       comment,
+      incomeExpense: type,
       // selectedCategory: selectedCategory.toLowerCase(),
       categoryName: selectedCategory.toLowerCase(),
     };

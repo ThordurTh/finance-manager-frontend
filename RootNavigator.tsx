@@ -4,11 +4,12 @@ import { StyleSheet, Text, View, Button } from "react-native";
 import EntryListScreen from "./screens/EntryListScreen";
 import EntryEditScreen from "./screens/EntryEditScreen";
 import EntryDeleteScreen from "./screens/EntryDeleteScreen";
+import { Entry } from "./types";
 
 // Type checking the navigator
 export type RootStackParamList = {
   EntryList: undefined;
-  EntryEdit: { entryId: number };
+  EntryEdit: { entry: Entry };
   EntryDelete: { entryId: number };
 };
 
@@ -16,6 +17,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
+  // const { entryData } = route.params;
   return (
     <Stack.Navigator>
       <Stack.Screen

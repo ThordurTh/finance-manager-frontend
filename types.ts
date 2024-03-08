@@ -6,6 +6,7 @@ export interface Entry {
   amount: number;
   currency: string;
   date: string;
+  incomeExpense: "income" | "expense";
   category: {
     id: number;
     name: string;
