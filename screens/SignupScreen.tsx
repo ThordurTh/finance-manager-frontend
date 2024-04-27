@@ -10,21 +10,22 @@ import {
   Button,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../store/userSlice";
+import { signup } from "../store/userSlice";
 import { AppDispatch, RootState } from "../store/store";
 import * as SecureStore from "expo-secure-store";
 
-const LoginScreen = ({ navigation }) => {
+const SignupScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch<AppDispatch>();
   const [loginClicked, setloginClicked] = useState(false);
   const token = useSelector((state: RootState) => state.users.token);
 
-  const handleLogin = () => {
+  const handleSignup = () => {
     setloginClicked(true);
     if (username !== "" || password !== "") {
-      dispatch(login({ username: username, password: password }));
+      dispatch(signup({ username: username, password: password }));
+      navigation.navigate("Login");
     }
   };
 
@@ -66,17 +67,17 @@ const LoginScreen = ({ navigation }) => {
           />
         </View>
         <TouchableOpacity
-          onPress={handleLogin}
+          onPress={handleSignup}
           style={[styles.login]}
           //   style={[styles.addEntry, isButtonDisabled && styles.buttonDisabled]}
           //   disabled={isButtonDisabled}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
         <View style={styles.signUp}>
           <Button
-            onPress={() => navigation.navigate("Signup")}
-            title="Register"
+            onPress={() => navigation.navigate("Login")}
+            title="Already have an account?"
           />
         </View>
       </View>
@@ -133,4 +134,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default SignupScreen;

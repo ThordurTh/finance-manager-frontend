@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useDispatch } from "react-redux";
+import * as SecureStore from "expo-secure-store";
 // import { addTransaction } from './redux/transactionsSlice';
 
 interface TransactionFormProps {}
@@ -38,6 +39,7 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
 
   const handleAddTransaction = async () => {
     // dispatch(addTransaction({ amount, type, date, name, comment, category: selectedCategory }));
+    const userId = await SecureStore.getItemAsync("userId");
 
     const body = {
       amount: Number(amount),
@@ -48,7 +50,7 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
       incomeExpense: type,
       // selectedCategory: selectedCategory.toLowerCase(),
       categoryName: selectedCategory.toLowerCase(),
-      userId: 2,
+      userId: userId,
     };
     try {
       const response = await fetch(

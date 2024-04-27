@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { Entry } from "../types";
 import axios from "axios";
-
+import * as SecureStore from "expo-secure-store";
 interface EntriesState {
   entries: Entry[];
   loading: boolean;
@@ -20,8 +20,16 @@ const initialState: EntriesState = {
 
 export const fetchEntries = createAsyncThunk("data/fetchData", async () => {
   try {
+    const userId = await SecureStore.getItemAsync("userId");
+    const token = await SecureStore.getItemAsync("token");
+
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
     const response = await axios.get(
-      "https://honestly-grateful-honeybee.ngrok-free.app/entry"
+      "https://honestly-grateful-honeybee.ngrok-free.app/entry/user/" + userId,
+      config
     );
     // console.log(response.data);
     return response.data;
