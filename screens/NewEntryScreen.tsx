@@ -48,6 +48,7 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
       incomeExpense: type,
       // selectedCategory: selectedCategory.toLowerCase(),
       categoryName: selectedCategory.toLowerCase(),
+      userId: 2,
     };
     try {
       const response = await fetch(

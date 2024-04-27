@@ -12,3 +12,14 @@ export interface Entry {
     name: string;
   };
 }
+
+export interface User {
+  id: number;
+  username: string;
+  role: Role;
+}
+
+export enum Role {
+  User = "user",
+  Admin = "admin",
+}

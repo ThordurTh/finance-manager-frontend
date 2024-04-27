@@ -18,41 +18,22 @@ import { fetchEntries, updateCategoryCounts } from "../store/entriesSlice";
 // type Props = NativeStackScreenProps<RootStackParamList, "EntryEdit">;
 
 const widthAndHeight = 300;
-let series: number[] = Array(11).fill(1);
-// let series: number[] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-const sliceColor = [
-  "#55E0BB",
-  "#4ECFAC",
-  "#56E3BD",
-  "#48BD9E",
-  "#40A88C",
-  "#39967E",
-  "#32856F",
-  "#2B705E",
-  "#245E4F",
-  "#1D4C40",
-  "#163B31",
-];
+let series: number[] = Array(11).fill(0);
 
 const ProfileScreen = () => {
   const dispatch = useDispatch();
   const { entries, categoryCounts } = useSelector(
     (state: RootState) => state.entries
   );
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
   useEffect(() => {
-    entries.forEach((entry) => {
+    entries.forEach((entry, index) => {
       series[entry.category.id - 1]++;
+      index === entries.length - 1 && setCategoriesLoaded(true);
     });
-    // console.log(series);
     dispatch(updateCategoryCounts(series));
-    // console.log("categoryCounts is: " + categoryCounts);
   }, [entries, dispatch]);
-
-  type category = {
-    title: string;
-    color: string;
-  };
 
   interface CategoryPair {
     title: string;
@@ -89,6 +70,10 @@ const ProfileScreen = () => {
       color: "#515C59",
     },
     {
+      title: "subscriptions",
+      color: "#B5E4D9",
+    },
+    {
       title: "transportation",
       color: "#756560",
     },
@@ -99,10 +84,6 @@ const ProfileScreen = () => {
     {
       title: "utilities",
       color: "#65C2A9",
-    },
-    {
-      title: "subscriptions",
-      color: "#B5E4D9",
     },
   ];
   const renderItem = ({ item }: { item: CategoryPair }) => (
@@ -117,21 +98,24 @@ const ProfileScreen = () => {
       {/* <ScrollView style={{ flex: 1 }}> */}
       <View style={styles.container}>
         <Text style={styles.title}>Statistics</Text>
-
-        <PieChart
-          widthAndHeight={widthAndHeight}
-          series={series}
-          sliceColor={categories.map((item) => item.color)}
-          coverRadius={0.45}
-          coverFill={"#FFF"}
-        />
+        {categoriesLoaded === false ? (
+          <Text>Loading...</Text>
+        ) : (
+          <PieChart
+            widthAndHeight={widthAndHeight}
+            series={categoryCounts}
+            sliceColor={categories.map((item) => item.color)}
+            coverRadius={0.45}
+            coverFill={"#FFF"}
+          />
+        )}
       </View>
       {/* </ScrollView> */}
       <View style={styles.list}>
         <FlatList
           numColumns={11}
           // horizontal={true}
-          data={categories.reverse()}
+          data={categories}
           renderItem={renderItem}
         />
       </View>
