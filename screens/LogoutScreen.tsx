@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import { RootStackParamList } from "../RootNavigator";
+import { RootStackEntryParamList } from "../RootNavigator";
 import * as SecureStore from "expo-secure-store";
 import { useDispatch } from "react-redux";
 import { resetUserState } from "../store/userSlice";

@@ -1,10 +1,10 @@
 import React from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
-import { RootStackParamList } from "../RootNavigator";
+import { RootStackEntryParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 
-type Props = NativeStackScreenProps<RootStackParamList, "EntryDelete">;
+type Props = NativeStackScreenProps<RootStackEntryParamList, "EntryDelete">;
 
 const EntryDeleteScreen = (props: Props) => {
   return (

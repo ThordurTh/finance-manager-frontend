@@ -8,14 +8,17 @@ import {
   Modal,
   TouchableOpacity,
 } from "react-native";
-import { RootStackParamList } from "../RootNavigator";
+import { RootStackEntryParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { StackScreenProps } from "@react-navigation/stack";
 import { deleteEntry } from "../store/entriesSlice";
 import { useDispatch } from "react-redux";
 
-type EntryEditScreenProps = StackScreenProps<RootStackParamList, "EntryEdit">;
+type EntryEditScreenProps = StackScreenProps<
+  RootStackEntryParamList,
+  "EntryEdit"
+>;
 
 interface DeleteModalProps {
   visible: boolean;

@@ -7,15 +7,12 @@ import {
   ScrollView,
   FlatList,
 } from "react-native";
-import { RootStackParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import PieChart from "react-native-pie-chart";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { fetchEntries, updateCategoryCounts } from "../store/entriesSlice";
-
-// type Props = NativeStackScreenProps<RootStackParamList, "EntryEdit">;
 
 const widthAndHeight = 300;
 let series: number[] = Array(11).fill(0);

@@ -16,9 +16,21 @@ import {
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useDispatch } from "react-redux";
 import * as SecureStore from "expo-secure-store";
+import { addNewEntry } from "../store/entriesSlice";
+import { Dispatch } from "@reduxjs/toolkit";
+import { AppDispatch } from "../store/store";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 // import { addTransaction } from './redux/transactionsSlice';
 
 interface TransactionFormProps {}
+
+type ParamListBase = {
+  "Finance Manager": undefined;
+  "New Entry": undefined;
+  Profile: undefined;
+  Logout: undefined;
+};
 
 const TransactionForm: React.FC<TransactionFormProps> = () => {
   const [amount, setAmount] = useState<string>("");
@@ -32,56 +44,84 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
   const [isDatePickerVisible, setDatePickerVisibility] =
     useState<boolean>(false);
 
-  const dispatch = useDispatch();
+  const navigation = useNavigation<StackNavigationProp<ParamListBase>>();
+
+  const dispatch = useDispatch<AppDispatch>();
 
   const isButtonDisabled =
     amount === "" || name === "" || selectedCategory === "";
 
-  const handleAddTransaction = async () => {
-    // dispatch(addTransaction({ amount, type, date, name, comment, category: selectedCategory }));
-    const userId = await SecureStore.getItemAsync("userId");
-
-    const body = {
-      amount: Number(amount),
-      date: date,
-      currency: "DKK",
-      name,
-      comment,
-      incomeExpense: type,
-      // selectedCategory: selectedCategory.toLowerCase(),
-      categoryName: selectedCategory.toLowerCase(),
-      userId: userId,
-    };
+  const handleNewEntry = async () => {
     try {
-      const response = await fetch(
-        "https://honestly-grateful-honeybee.ngrok-free.app/entry",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
+      await dispatch(
+        addNewEntry({
+          amount: Number(amount),
+          date: date.toISOString(),
+          currency: "DKK",
+          name,
+          comment,
+          incomeExpense: type,
+          categoryName: selectedCategory.toLowerCase(),
+        })
       );
-      if (response.ok) {
-        // Handle success
-        console.log("Transaction added successfully");
-        // console.log(body);
-        setAmount("");
-        setDate(new Date());
-        setName("");
-        setComment("");
-        setSelectedCategory("");
-      } else {
-        // Handle error
-        // console.log(body);
-        console.log("Error code: " + response.status);
-        console.error("Failed to add transaction");
-      }
+
+      // Clear input fields on successful entry addition
+      setAmount("");
+      setDate(new Date());
+      setName("");
+      setComment("");
+      setSelectedCategory("");
+      navigation.navigate("Finance Manager");
     } catch (error) {
       console.error("Error adding transaction:", error);
     }
   };
+
+  // const handleNewEntry = async () => {
+  //   // dispatch(newEntry({ amount, type, date, name, comment, category: selectedCategory }));
+  //   const userId = await SecureStore.getItemAsync("userId");
+
+  //   const body = {
+  //     amount: Number(amount),
+  //     date: date,
+  //     currency: "DKK",
+  //     name,
+  //     comment,
+  //     incomeExpense: type,
+  //     // selectedCategory: selectedCategory.toLowerCase(),
+  //     categoryName: selectedCategory.toLowerCase(),
+  //     userId: userId,
+  //   };
+  //   try {
+  //     const response = await fetch(
+  //       "https://honestly-grateful-honeybee.ngrok-free.app/entry",
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(body),
+  //       }
+  //     );
+  //     if (response.ok) {
+  //       // Handle success
+  //       console.log("Transaction added successfully");
+  //       // console.log(body);
+  //       setAmount("");
+  //       setDate(new Date());
+  //       setName("");
+  //       setComment("");
+  //       setSelectedCategory("");
+  //     } else {
+  //       // Handle error
+  //       // console.log(body);
+  //       console.log("Error code: " + response.status);
+  //       console.error("Failed to add transaction");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error adding transaction:", error);
+  //   }
+  // };
 
   const toggleCategoryModal = () => {
     setIsCategoryModalVisible(!isCategoryModalVisible);
@@ -280,7 +320,7 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
         </View>
 
         <TouchableOpacity
-          onPress={handleAddTransaction}
+          onPress={handleNewEntry}
           style={[styles.addEntry, isButtonDisabled && styles.buttonDisabled]}
           disabled={isButtonDisabled}
         >

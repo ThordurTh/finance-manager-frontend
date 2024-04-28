@@ -7,14 +7,14 @@ import EntryDeleteScreen from "./screens/EntryDeleteScreen";
 import { Entry } from "./types";
 
 // Type checking the navigator
-export type RootStackParamList = {
+export type RootStackEntryParamList = {
   EntryList: undefined;
   EntryEdit: { entry: Entry };
   EntryDelete: { entryId: number };
 };
 
 // Tell navigator to use it by passing it as a generic.
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator<RootStackEntryParamList>();
 
 const RootNavigator = () => {
   // const { entryData } = route.params;

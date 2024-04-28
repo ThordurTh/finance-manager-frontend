@@ -26,10 +26,6 @@ enum iconNames {
   Logout = "log-out",
   LogoutOutline = "log-out-outline",
 }
-// export type RootStackParamList = {
-//   Login;
-//   Signup;
-// };
 const Stack = createNativeStackNavigator();
 const MainNavigation = () => {
   const loggedIn = useSelector((state: RootState) => state.users.loggedIn);

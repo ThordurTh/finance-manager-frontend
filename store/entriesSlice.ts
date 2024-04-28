@@ -28,7 +28,7 @@ export const fetchEntries = createAsyncThunk("data/fetchData", async () => {
     };
 
     const response = await axios.get(
-      "https://honestly-grateful-honeybee.ngrok-free.app/entry/user/" + userId,
+      `https://honestly-grateful-honeybee.ngrok-free.app/entry/user/${userId}`,
       config
     );
     // console.log(response.data);
@@ -37,6 +37,47 @@ export const fetchEntries = createAsyncThunk("data/fetchData", async () => {
     throw error;
   }
 });
+
+interface EntryData {
+  amount: Number;
+  date: String;
+  currency: String;
+  name: String;
+  comment: String;
+  incomeExpense: String;
+  categoryName: String;
+}
+
+export const addNewEntry = createAsyncThunk(
+  "entries/addNewEntry",
+  async (entryData: EntryData) => {
+    try {
+      const userId = await SecureStore.getItemAsync("userId");
+
+      const body = {
+        body: JSON.stringify({ ...entryData, userId }),
+      };
+
+      const response = await axios.post(
+        "https://honestly-grateful-honeybee.ngrok-free.app/entry",
+        { ...entryData, userId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.data) {
+        throw new Error("Failed to add transaction");
+      }
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+);
 
 export const deleteEntry = createAsyncThunk(
   "data/deleteEntry",
@@ -77,6 +118,23 @@ const entriesSlice = createSlice({
       state.loading = false;
       state.error = action.error.message || "An error occurred.";
     });
+
+    // POST
+    builder.addCase(addNewEntry.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(addNewEntry.fulfilled, (state, action) => {
+      state.loading = false;
+      // Optionally update state after successful post
+      state.entries.unshift(action.payload);
+    });
+    builder.addCase(addNewEntry.rejected, (state, action) => {
+      state.loading = false;
+      state.error =
+        action.error.message || "An error occurred while adding the entry.";
+    });
+
     // DELETE
     builder.addCase(deleteEntry.pending, (state) => {
       state.loading = true;

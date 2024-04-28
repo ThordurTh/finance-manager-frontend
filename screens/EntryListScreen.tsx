@@ -1,4 +1,4 @@
-import { RootStackParamList } from "../RootNavigator";
+import { RootStackEntryParamList } from "../RootNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
 import {
@@ -17,7 +17,7 @@ import { fetchEntries } from "../store/entriesSlice";
 import { Entry } from "../types";
 // import { useIsFocused } from "@react-navigation/native";
 
-type Props = NativeStackScreenProps<RootStackParamList, "EntryList">;
+type Props = NativeStackScreenProps<RootStackEntryParamList, "EntryList">;
 
 const EntryListScreen = (props: Props) => {
   const dispatch = useDispatch();
@@ -43,7 +43,7 @@ const EntryListScreen = (props: Props) => {
     setTimeout(async () => {
       await dispatch(fetchEntries() as any);
       setIsRefreshing(false);
-    }, 700); // 2000 milliseconds = 2 seconds
+    }, 700);
   };
 
   // Format date
