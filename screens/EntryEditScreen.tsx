@@ -112,7 +112,7 @@ const EntryEditScreen = ({ navigation, route }: EntryEditScreenProps) => {
   // };
 
   const { entry } = route.params;
-  console.log(entry);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>

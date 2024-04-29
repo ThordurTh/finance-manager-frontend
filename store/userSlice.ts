@@ -7,6 +7,7 @@ interface UserState {
   user: User | null;
   token: string | null;
   userId: number | null;
+  role: string | null;
   loading: boolean;
   error: string | null;
   loggedIn: boolean;
@@ -16,6 +17,7 @@ const initialState: UserState = {
   user: null,
   token: null,
   userId: null,
+  role: "user",
   loading: false,
   error: null,
   loggedIn: false,
@@ -78,10 +80,12 @@ const userSlice = createSlice({
         // state.user = action.payload.user;
         state.token = action.payload.access_token;
         state.userId = action.payload.id;
+        state.role = action.payload.role;
         state.loggedIn = true;
         // secure storage save the token
         SecureStore.setItemAsync("token", action.payload.access_token);
         SecureStore.setItemAsync("userId", action.payload.id.toString());
+        SecureStore.setItemAsync("role", action.payload.role);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;

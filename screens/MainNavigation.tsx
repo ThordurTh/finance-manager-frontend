@@ -12,6 +12,7 @@ import LogoutScreen from "./LogoutScreen";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import SignupScreen from "./SignupScreen";
+import CameraTest from "./CameraTest";
 
 const Tab = createBottomTabNavigator();
 
@@ -30,27 +31,6 @@ const Stack = createNativeStackNavigator();
 const MainNavigation = () => {
   const loggedIn = useSelector((state: RootState) => state.users.loggedIn);
   console.log("Is logged in: " + loggedIn);
-
-  //   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  //   useEffect(() => {
-  //     // Check if user is logged in using JWT token stored in SecureStore
-  //     const checkLoginStatus = async () => {
-  //       try {
-  //         const token = await SecureStore.getItemAsync("token");
-  //         if (token) {
-  //           // Token exists, user is logged in
-  //           setIsLoggedIn(true);
-  //         } else {
-  //           // Token does not exist, user is not logged in
-  //           setIsLoggedIn(false);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error checking login status:", error);
-  //       }
-  //     };
-
-  //     checkLoginStatus();
-  //   }, []);
 
   return (
     <NavigationContainer>
@@ -82,6 +62,7 @@ const MainNavigation = () => {
           <Tab.Screen name="New Entry" component={NewEntryScreen} />
           <Tab.Screen name="Profile" component={ProfileScreen} />
           <Tab.Screen name="Logout" component={LogoutScreen} />
+          <Tab.Screen name="Camera" component={CameraTest} />
         </Tab.Navigator>
       ) : (
         <Stack.Navigator>

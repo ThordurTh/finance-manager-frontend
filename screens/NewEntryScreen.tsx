@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   TextInput,
@@ -14,13 +14,15 @@ import {
   Keyboard,
 } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as SecureStore from "expo-secure-store";
 import { addNewEntry } from "../store/entriesSlice";
 import { Dispatch } from "@reduxjs/toolkit";
-import { AppDispatch } from "../store/store";
-import { useNavigation } from "@react-navigation/native";
+import { AppDispatch, RootState } from "../store/store";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { ModalContent } from "../components/MustBeAdminModal";
+// import { Picture } from "../components/Picture";
 // import { addTransaction } from './redux/transactionsSlice';
 
 interface TransactionFormProps {}
@@ -44,6 +46,10 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
   const [isDatePickerVisible, setDatePickerVisibility] =
     useState<boolean>(false);
 
+  const [camera, setCamera] = useState(false);
+  const [photoToDisplay, setPhotoToDisplay] = useState("");
+  const entries = useSelector((state: RootState) => state.entries.entries);
+
   const navigation = useNavigation<StackNavigationProp<ParamListBase>>();
 
   const dispatch = useDispatch<AppDispatch>();
@@ -62,6 +68,7 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
           comment,
           incomeExpense: type,
           categoryName: selectedCategory.toLowerCase(),
+          // photoToDisplay
         })
       );
 
@@ -76,52 +83,6 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
       console.error("Error adding transaction:", error);
     }
   };
-
-  // const handleNewEntry = async () => {
-  //   // dispatch(newEntry({ amount, type, date, name, comment, category: selectedCategory }));
-  //   const userId = await SecureStore.getItemAsync("userId");
-
-  //   const body = {
-  //     amount: Number(amount),
-  //     date: date,
-  //     currency: "DKK",
-  //     name,
-  //     comment,
-  //     incomeExpense: type,
-  //     // selectedCategory: selectedCategory.toLowerCase(),
-  //     categoryName: selectedCategory.toLowerCase(),
-  //     userId: userId,
-  //   };
-  //   try {
-  //     const response = await fetch(
-  //       "https://honestly-grateful-honeybee.ngrok-free.app/entry",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(body),
-  //       }
-  //     );
-  //     if (response.ok) {
-  //       // Handle success
-  //       console.log("Transaction added successfully");
-  //       // console.log(body);
-  //       setAmount("");
-  //       setDate(new Date());
-  //       setName("");
-  //       setComment("");
-  //       setSelectedCategory("");
-  //     } else {
-  //       // Handle error
-  //       // console.log(body);
-  //       console.log("Error code: " + response.status);
-  //       console.error("Failed to add transaction");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding transaction:", error);
-  //   }
-  // };
 
   const toggleCategoryModal = () => {
     setIsCategoryModalVisible(!isCategoryModalVisible);
@@ -204,129 +165,177 @@ const TransactionForm: React.FC<TransactionFormProps> = () => {
     return new Intl.DateTimeFormat("en-dk", options).format(new Date(date));
   };
 
+  const [isModalVisible, setModalVisible] = useState(true);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchUserRole = async () => {
+        const role = await SecureStore.getItemAsync("role");
+        if (role !== "admin") {
+          setModalVisible(true);
+        } else {
+          setModalVisible(false);
+        }
+      };
+      fetchUserRole();
+    }, [])
+  );
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <Text style={styles.label}>Amount</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          placeholder="Amount"
-          value={amount.toString()}
-          onChangeText={(text) => setAmount(text)}
-        />
-        <View style={styles.radioContainer}>
-          <TouchableOpacity
-            style={[
-              styles.radioButton,
-              type === "income" ? styles.selectedRadioButton : null,
-            ]}
-            onPress={() => setType("income")}
-          >
-            <Text>Income</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.radioButton,
-              type === "expense" ? styles.selectedRadioButton : null,
-            ]}
-            onPress={() => setType("expense")}
-          >
-            <Text>Expense</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.dateWrapper}>
-          <Text style={styles.label}>Date</Text>
-          <View style={styles.dateInput}>
+      <>
+        <View style={styles.container}>
+          <Text style={styles.label}>Amount</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            placeholder="Amount"
+            value={amount.toString()}
+            onChangeText={(text) => setAmount(text)}
+          />
+          <View style={styles.radioContainer}>
             <TouchableOpacity
-              style={styles.date}
-              onPress={() => setDatePickerVisibility(true)}
+              style={[
+                styles.radioButton,
+                type === "income" ? styles.selectedRadioButton : null,
+              ]}
+              onPress={() => setType("income")}
             >
-              <Text style={styles.dateText}>
-                {formatDate(date.toISOString()).split(" ")[0]}
-              </Text>
+              <Text>Income</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.date}
-              onPress={() => setDatePickerVisibility(true)}
+              style={[
+                styles.radioButton,
+                type === "expense" ? styles.selectedRadioButton : null,
+              ]}
+              onPress={() => setType("expense")}
             >
-              <Text style={styles.dateText}>
-                {formatDate(date.toISOString()).split(" ")[1]}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.date}
-              onPress={() => setDatePickerVisibility(true)}
-            >
-              <Text style={styles.dateText}>
-                {formatDate(date.toISOString()).split(" ")[2]}
-              </Text>
+              <Text>Expense</Text>
             </TouchableOpacity>
           </View>
-          <DateTimePickerModal
-            isVisible={isDatePickerVisible}
-            mode="date"
-            onConfirm={handleConfirmDate}
-            onCancel={() => setDatePickerVisibility(false)}
-            textColor="black"
-            date={date}
-          />
-        </View>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={name}
-            onChangeText={(text) => setName(text)}
-          />
-        </View>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>Comment</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Comment"
-            value={comment}
-            onChangeText={(text) => setComment(text)}
-          />
-        </View>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.label}>Category</Text>
+          <View style={styles.dateWrapper}>
+            <Text style={styles.label}>Date</Text>
+            <View style={styles.dateInput}>
+              <TouchableOpacity
+                style={styles.date}
+                onPress={() => setDatePickerVisibility(true)}
+              >
+                <Text style={styles.dateText}>
+                  {formatDate(date.toISOString()).split(" ")[0]}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.date}
+                onPress={() => setDatePickerVisibility(true)}
+              >
+                <Text style={styles.dateText}>
+                  {formatDate(date.toISOString()).split(" ")[1]}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.date}
+                onPress={() => setDatePickerVisibility(true)}
+              >
+                <Text style={styles.dateText}>
+                  {formatDate(date.toISOString()).split(" ")[2]}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="date"
+              onConfirm={handleConfirmDate}
+              onCancel={() => setDatePickerVisibility(false)}
+              textColor="black"
+              date={date}
+            />
+          </View>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.label}>Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              value={name}
+              onChangeText={(text) => setName(text)}
+            />
+          </View>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.label}>Comment</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Comment"
+              value={comment}
+              onChangeText={(text) => setComment(text)}
+            />
+          </View>
+          <View style={styles.inputWrapper}>
+            <Text style={styles.label}>Category</Text>
+
+            <TouchableOpacity
+              style={styles.categoryInput}
+              onPress={toggleCategoryModal}
+            >
+              <Text style={styles.categoryInputText}>
+                {selectedCategory ? selectedCategory : "Select Category"}
+              </Text>
+            </TouchableOpacity>
+            <Modal
+              visible={isCategoryModalVisible}
+              animationType="slide"
+              transparent={true}
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <FlatList
+                    data={categories}
+                    renderItem={renderCategoryItem}
+                    keyExtractor={(item) => item.value}
+                    numColumns={2}
+                  />
+                </View>
+              </View>
+            </Modal>
+          </View>
+
+          {/* <View>
+            {camera ? (
+              <Picture
+                setCamera={setCamera}
+                setPhotoToDisplay={setPhotoToDisplay}
+              ></Picture>
+            ) : (
+              <>
+                <Image
+                  source={{ uri: entries[0]?.photo }}
+                  style={{ width: 400, height: 400 }}
+                />
+
+                <Button title="Open camera" onPress={() => setCamera(true)} />
+              </>
+            )}
+          </View> */}
 
           <TouchableOpacity
-            style={styles.categoryInput}
-            onPress={toggleCategoryModal}
+            onPress={handleNewEntry}
+            style={[styles.addEntry, isButtonDisabled && styles.buttonDisabled]}
+            disabled={isButtonDisabled}
           >
-            <Text style={styles.categoryInputText}>
-              {selectedCategory ? selectedCategory : "Select Category"}
-            </Text>
+            <Text style={styles.buttonText}>Add Entry</Text>
           </TouchableOpacity>
-          <Modal
-            visible={isCategoryModalVisible}
-            animationType="slide"
-            transparent={true}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <FlatList
-                  data={categories}
-                  renderItem={renderCategoryItem}
-                  keyExtractor={(item) => item.value}
-                  numColumns={2}
-                />
-              </View>
-            </View>
-          </Modal>
         </View>
-
-        <TouchableOpacity
-          onPress={handleNewEntry}
-          style={[styles.addEntry, isButtonDisabled && styles.buttonDisabled]}
-          disabled={isButtonDisabled}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={toggleModal}
         >
-          <Text style={styles.buttonText}>Add Entry</Text>
-        </TouchableOpacity>
-      </View>
+          <ModalContent onClose={toggleModal} />
+        </Modal>
+      </>
     </TouchableWithoutFeedback>
   );
 };
